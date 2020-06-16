@@ -1,0 +1,12 @@
+{
+    "type": "service_account",
+    "project_id": "pure-spirit-196018",
+    "private_key_id": "212c66bc3194960297c0d36472a52cf19170cf44",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC8fJLFf7+E9/4b\n2Z9k4PofDtwzwvWn+74skETOYULjLFkoXCMAbKyIJk8eo7gx3ym9CLY55zo8ErOl\nON9fgmjiH+5orUDUFGr9Z+X+cCv8xzMkrKTKl/0Ak4YVTmBO9Vk9dtIP8533aA9W\nYbd0kAjsokgS75vc3yeBJn31wPEu2d8nGUzEvNziIYmz0ML9VFo2qmI4Rm8UUxCy\nbm8wHJwuKqZlXllSznwM+/kgEo8bXi/epByI2z8/GXD+UEP3bwcXH9RRGOyDkFzF\noMMAmgMGghyQ9ffUZngAPb+S5ZVYolfgKm1oYZY53cLfk2vmNFqraaC6/spr++bX\nxZhVr3U/AgMBAAECggEAB/Cpt38O9DshTc7RNVtA3FlpWfqjTJbWY7ikHWJvSXQr\nlqo4TCMO8gTjHer5rjZfcTDSbT8hJ6rpkqhXcz6pdt/L7Smazk02Ve4+bb5Ind34\nlT1B7wLlL3Fc1EvU0wI9ykK5Pt8A68YujI4EI2s9czmW3a1YVWm4s/kXeC+WOWZn\nJzr47a0tIaDkACRM73HWUjsjKqvSguQYh3pUYBNg0M1eqM8rlH637Fi41RLcOcmE\n+xUV18o5l1sBRIr1E7RCyd/QPnc6XVGiZ6u+UJlDzH3+lNSde7pxlHmBPpYVcg2P\nlQgINPb7yTofl5G/ak46vgXLjciS9Cawcmiz1mz2GQKBgQDx6EqjLe2fEyjro0Dw\na/n7k0Qd4LJJkiJy1VL4xP376vPPNb/oXNBf8xFDDTpEtCUHAVHWIy5+2ISiS7fK\n+5C992jbVkqBoAcxy4V1zO3p8dC7USUKGDONKzNRAt0xovpVuQ8F3aGVfvQirOtr\n5EVpYS5p9T+X1WkaVKTGRDYqQwKBgQDHd5YIToYeLPQeVbAgMatFNt2keiA4YSIH\nn3Ti11MWxazHLdeLv71t++AH7gJR59bekJ6LjXLYDeDmRZGDF3Wfa4fV3zZRqE28\nC+1vBqVKwPgFZ0odb/aLMk5yolohh9vOBrV0SYOWltGwHRoGflhEJ5gYE9erzvl8\nSJUrtAiPVQKBgQCXORiXg9mc7PRSwf6RjV57p2cYqmOp3EHOuY6h1zvTJOB/M2Gh\nl4vnv2KWIQnA80CGbYvEKsAhKadYca8WpEaqiqSxIPN4rxpwRYNLze0Yp0NOJf7a\nnaB0aoIs7XZrVi/aMNK0XwVpGDD0EFcnXk8J/mduc5Lqjs2iWTGcg/28UwKBgQCz\n8IRvL+87b5A1gVVmZYg84zblNqq0UaOyPr3iGR9CjsbD0+37itgnTK4YWTTMkJm8\no7fy6oJst3BoKuAO423fh9C9NiS5W1vsxNHHc7ZPDm9v6HLqxWMixRoRvbYTQ40d\ned3dbqf/hETbXBVrQDT+Hr3NErFfs1JLNOskxr9mFQKBgF3p8vKKAisJ5IJRHAS4\nkVdYaVrDwXjHgKDjpAPPd/AzUBhrr0gJCktMaZ4pkrJRuSSt38CTPTdUpjrXDT7b\nGu9JoLvIzsf8jgYFTHiJjkFjr/sEDqOkvUIWuIWhCtTl2ZFuLCIzBiA7EQF2x1Ek\nYuzV80EWYixCLeBk/p7XP7Xz\n-----END PRIVATE KEY-----\n",
+    "client_email": "helpdesk-narural-language@pure-spirit-196018.iam.gserviceaccount.com",
+    "client_id": "110246761048735553608",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/helpdesk-narural-language%40pure-spirit-196018.iam.gserviceaccount.com"
+}
