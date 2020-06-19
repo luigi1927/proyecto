@@ -325,6 +325,86 @@ async function getPruebaEjecutadaBySintoma(reqClient, resClient, databaseManager
         });
     }
 }
+async function updateTagsBySintoma(reqClient, resClient, databaseManager) {
+    let updateTagsBySintoma = reqClient.body
+    let validationResult = validateModel(updateTagsBySintoma, schema.updateTagsBySintoma);
+    if (validationResult.responseStatus) {
+        let { id_sintoma, tags } = updateTagsBySintoma;
+
+        tags = (tags != null) ? tags.toString() : null;
+        let sql = SqlString.format(`UPDATE  sintomas  set tags =? where id =?`, [tags, id_sintoma]);
+
+        let dbResponse = await databaseManager.executeQueries(sql);
+        resClient.status(dbResponse.responseCode).send({
+            ...dbResponse
+        });
+    } else {
+        resClient.status(validationResult.responseCode).send({
+            ...validationResult
+        });
+    }
+}
+
+async function InsertDiagnostico(reqClient, resClient, databaseManager) {
+    let newDiagnostico = reqClient.body;
+    let validationResult = validateModel(newDiagnostico, schema.InsertDiagnostico);
+    if (validationResult.responseStatus) {
+        newDiagnostico.ids_pruebas_ejecutadas = newDiagnostico.ids_pruebas_ejecutadas.toString();
+        newDiagnostico.tags = await annotateText('', newDiagnostico.diagnostico);
+        let sql = SqlString.format(`INSERT INTO diagnostico SET ?`, newDiagnostico);
+        let dbResponse = await databaseManager.executeQueries(sql);
+        resClient.status(dbResponse.responseCode).send({
+            ...dbResponse
+        });
+
+    } else {
+        resClient.status(validationResult.responseCode).send({
+            ...validationResult
+        });
+    }
+
+}
+
+async function getDiagnosticoByTicket(reqClient, resClient, databaseManager) {
+
+    let id_ticket = reqClient.query.id_ticket;
+    let validationResult = validateModel({ id_ticket }, schema.getDiagnosticoByTicket);
+    if (validationResult.responseStatus) {
+        let sql = SqlString.format(`SELECT d.*, t.nombre as tecnico  FROM diagnostico d inner JOIN tecnicos_sistemas t on t.id = d.id_tecnico where id_ticket = ?`, [id_ticket]);
+
+        let dbResponse = await databaseManager.executeQueries(sql);
+        if (dbResponse.resultData.length > 0) {
+            let ticket = dbResponse.resultData;
+            for (const iterator of ticket) {
+                console.log(iterator.ids_pruebas_ejecutadas);
+                iterator.pruebasVinculdas = iterator.ids_pruebas_ejecutadas.split(',');
+                for (const key in iterator.pruebasVinculdas) {
+                    if (iterator.pruebasVinculdas.hasOwnProperty(key)) {
+                        const element = iterator.pruebasVinculdas[key];
+                        let sql = SqlString.format(`SELECT * FROM vista_prueba_ejecutadabysintoma  where id_prueba = ?`, [element]);
+                        let dbResponseOther = await databaseManager.executeQueries(sql);
+                        iterator.pruebasVinculdas[key] = {...dbResponseOther.resultData[0] };
+                    }
+                }
+            }
+
+            dbResponse.resultData = ticket;
+            resClient.status(dbResponse.responseCode).send({
+                ...dbResponse
+            });
+        } else {
+            resClient.status(dbResponse.responseCode).send({
+                ...dbResponse
+            });
+        }
+
+    } else {
+        resClient.status(validationResult.responseCode).send({
+            ...validationResult
+        });
+    }
+
+}
 
 
 module.exports = {
@@ -341,5 +421,8 @@ module.exports = {
     getCatalogoPrueba,
     getTipificacionPrueba,
     InsertPruebaEjecutada,
-    getPruebaEjecutadaBySintoma
+    getPruebaEjecutadaBySintoma,
+    updateTagsBySintoma,
+    InsertDiagnostico,
+    getDiagnosticoByTicket
 }

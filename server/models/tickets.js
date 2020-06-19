@@ -46,13 +46,22 @@ const InsertPruebaEjecutada = Joi.object().keys({
     observacion: Joi.string().required()
 })
 
+const updateTagsBySintoma = Joi.object().keys({
+    id_sintoma: Joi.number().required(),
+    tags: Joi.array().items(Joi.string().required()).allow(null)
+});
 
 
+const InsertDiagnostico = Joi.object().keys({
+    id_tecnico: Joi.number().required(),
+    id_ticket: Joi.number().required(),
+    diagnostico: Joi.string().required(),
+    ids_pruebas_ejecutadas: Joi.array().items(Joi.number().required()).allow(null)
+});
 
-
-
-
-
+const getDiagnosticoByTicket = Joi.object().keys({
+    id_ticket: Joi.number().required()
+});
 module.exports = {
     Insert,
     assignTechnical,
@@ -61,5 +70,8 @@ module.exports = {
     getSintomas,
     InsertComentarioTecnico,
     InsertPruebaEjecutada,
-    GetPruebaEjecutadaBySintoma
+    GetPruebaEjecutadaBySintoma,
+    updateTagsBySintoma,
+    InsertDiagnostico,
+    getDiagnosticoByTicket
 }

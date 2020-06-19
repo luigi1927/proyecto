@@ -56,4 +56,17 @@ app.get('/tickets/getPruebaEjecutadaBySintoma', verifyToken, (req, res) => {
     ticketsController.getPruebaEjecutadaBySintoma(req, res, app.get('databaseManager'));
 });
 
+
+app.post('/tickets/updateTagsBySintoma', verifyToken, (req, res) => {
+    ticketsController.updateTagsBySintoma(req, res, app.get('databaseManager'));
+});
+
+app.put('/tickets/InsertDiagnostico', verifyToken, (req, res) => {
+    ticketsController.InsertDiagnostico(req, res, app.get('databaseManager'));
+});
+
+app.get('/tickets/getDiagnosticoByTicket', (req, res) => {
+    ticketsController.getDiagnosticoByTicket(req, res, app.get('databaseManager'));
+});
+
 module.exports = app;

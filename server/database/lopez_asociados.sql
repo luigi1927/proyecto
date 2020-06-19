@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-06-2020 a las 17:22:09
+-- Tiempo de generación: 19-06-2020 a las 22:32:40
 -- Versión del servidor: 10.1.38-MariaDB
 -- Versión de PHP: 5.6.40
 
@@ -150,10 +150,18 @@ CREATE TABLE `diagnostico` (
   `id` int(11) NOT NULL,
   `diagnostico` varchar(250) NOT NULL,
   `id_ticket` int(11) NOT NULL,
-  `id_prueba` int(11) NOT NULL,
+  `ids_pruebas_ejecutadas` text NOT NULL,
   `id_tecnico` int(11) NOT NULL,
-  `tags` int(11) NOT NULL
+  `tags` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `diagnostico`
+--
+
+INSERT INTO `diagnostico` (`id`, `diagnostico`, `id_ticket`, `ids_pruebas_ejecutadas`, `id_tecnico`, `tags`) VALUES
+(6, 'la prueba esta trabajando en puerta de todos', 35, '4,3', 10, ' prueba trabajando puerta'),
+(7, 'samuel aqui adjunto mi proyecto subido a git y adjunto el video solicitado, pido disculpas por el video ya que tuve inconvenientes con mi portatil y no grababa el audio', 35, '2,1', 10, ' samuel proyecto git adjunto video solicitado, pido disculpas video inconvenientes portatil no grababa audio');
 
 -- --------------------------------------------------------
 
@@ -466,7 +474,33 @@ INSERT INTO `eventos_log_tecnico_sistemas` (`id`, `id_tecnico_sistemas`, `fecha_
 (182, 10, '2020-06-14 21:55:45', 'INGRESO', 1),
 (183, 10, '2020-06-14 22:27:29', 'INGRESO', 1),
 (184, 10, '2020-06-14 22:37:56', 'PRUEBA EJECUTADA', 4),
-(185, 10, '2020-06-14 22:41:31', 'SALIO DE SESION', 3);
+(185, 10, '2020-06-14 22:41:31', 'SALIO DE SESION', 3),
+(186, 10, '2020-06-17 16:21:11', 'INGRESO', 1),
+(187, 10, '2020-06-17 16:51:10', 'INGRESO', 1),
+(188, 10, '2020-06-17 19:50:18', 'INGRESO', 1),
+(189, 10, '2020-06-17 20:20:08', 'INGRESO', 1),
+(190, 10, '2020-06-17 20:52:40', 'INGRESO', 1),
+(191, 10, '2020-06-17 21:24:43', 'INGRESO', 1),
+(192, 10, '2020-06-17 21:54:49', 'INGRESO', 1),
+(193, 10, '2020-06-18 11:04:30', 'INGRESO', 1),
+(194, 10, '2020-06-18 11:06:07', 'PRUEBA EJECUTADA', 4),
+(195, 10, '2020-06-18 16:38:24', 'INGRESO', 1),
+(196, 10, '2020-06-18 16:45:10', 'SALIO DE SESION', 3),
+(197, 10, '2020-06-18 16:45:19', 'INGRESO', 1),
+(198, 10, '2020-06-18 17:15:54', 'INGRESO', 1),
+(199, 10, '2020-06-18 17:49:08', 'INGRESO', 1),
+(200, 10, '2020-06-18 18:19:31', 'INGRESO', 1),
+(201, 10, '2020-06-18 22:23:21', 'INGRESO', 1),
+(202, 10, '2020-06-18 22:54:45', 'INGRESO', 1),
+(203, 10, '2020-06-19 08:45:04', 'INGRESO', 1),
+(204, 10, '2020-06-19 09:38:12', 'INGRESO', 1),
+(205, 10, '2020-06-19 10:09:00', 'INGRESO', 1),
+(206, 10, '2020-06-19 13:03:53', 'INGRESO', 1),
+(207, 10, '2020-06-19 13:33:38', 'INGRESO', 1),
+(208, 10, '2020-06-19 14:06:05', 'INGRESO', 1),
+(209, 10, '2020-06-19 14:56:26', 'INGRESO', 1),
+(210, 10, '2020-06-19 15:22:02', 'SALIO DE SESION', 3),
+(211, 10, '2020-06-19 15:22:08', 'INGRESO', 1);
 
 -- --------------------------------------------------------
 
@@ -921,7 +955,18 @@ INSERT INTO `eventos_log_usuario` (`id`, `id_usuario`, `fecha_evento`, `observac
 (499, 15, '2020-06-14 18:40:27', 'INGRESO', 1),
 (500, 15, '2020-06-14 18:41:00', 'SALIO DE SESION', 3),
 (501, 15, '2020-06-14 22:41:39', 'INGRESO', 1),
-(502, 15, '2020-06-15 10:17:46', 'INGRESO', 1);
+(502, 15, '2020-06-15 10:17:46', 'INGRESO', 1),
+(503, 15, '2020-06-17 14:17:24', 'INGRESO', 1),
+(504, 15, '2020-06-17 14:27:18', 'SALIO DE SESION', 3),
+(505, 15, '2020-06-17 14:28:00', 'INGRESO', 1),
+(506, 15, '2020-06-17 15:01:25', 'INGRESO', 1),
+(507, 15, '2020-06-17 15:12:13', 'SALIO DE SESION', 3),
+(508, 15, '2020-06-17 15:12:20', 'INGRESO', 1),
+(509, 15, '2020-06-17 15:34:46', 'SALIO DE SESION', 3),
+(510, 15, '2020-06-17 15:34:52', 'INGRESO', 1),
+(511, 15, '2020-06-17 16:09:17', 'INGRESO', 1),
+(512, 15, '2020-06-17 16:20:52', 'SALIO DE SESION', 3),
+(513, 15, '2020-06-19 13:47:37', 'INGRESO', 1);
 
 -- --------------------------------------------------------
 
@@ -1123,7 +1168,8 @@ CREATE TABLE `pruebas_ejecutadas` (
 INSERT INTO `pruebas_ejecutadas` (`id`, `id_catalogo`, `id_sintoma`, `id_tecnico`, `id_tipificacion_prueba`, `observacion`, `fecha_creacion`, `tags`) VALUES
 (1, 2, 32, 10, 3, 'el cable no estaba conectado', '2020-06-14 19:13:05', NULL),
 (2, 1, 32, 10, 1, 'dsadad', '2020-06-14 19:49:34', NULL),
-(3, 1, 32, 10, 2, 'el sistema no trabaja correctamente', '2020-06-14 22:37:56', NULL);
+(3, 1, 32, 10, 2, 'el sistema no trabaja correctamente', '2020-06-14 22:37:56', NULL),
+(4, 1, 32, 10, 3, 'fasfadsfaf', '2020-06-18 11:06:06', NULL);
 
 -- --------------------------------------------------------
 
@@ -1214,7 +1260,7 @@ CREATE TABLE `sintomas` (
 --
 
 INSERT INTO `sintomas` (`id`, `sintoma`, `id_ticket`, `fecha_creacion`, `id_usuario`, `id_aplicacion`, `id_dispositivo`, `id_comunicacion`, `tags`) VALUES
-(32, 'no me esta funcionando, la verdad la necesito urgente', 35, '2020-06-12 17:25:23', 15, NULL, 8, NULL, 'docking no funcionando, verdad necesito'),
+(32, 'no me esta funcionando, la verdad la necesito urgente', 35, '2020-06-12 17:25:23', 15, NULL, 8, NULL, 'docking no funcionando'),
 (33, 'muy buenas tardes, no enciende', 36, '2020-06-13 21:40:23', 15, NULL, 1, NULL, 'PC, no enciende'),
 (34, 'no funciona', 37, '2020-06-14 11:20:57', 15, NULL, 2, NULL, 'Teclado no funciona'),
 (35, 'no funciona', 38, '2020-06-14 13:20:14', 15, NULL, 8, NULL, 'Docking no funciona');
@@ -1475,6 +1521,7 @@ CREATE TABLE `vista_dispositivos` (
 CREATE TABLE `vista_prueba_ejecutadabysintoma` (
 `id_prueba` int(11)
 ,`id_sintoma` int(11)
+,`id_ticket` int(11)
 ,`id_catalogo` int(11)
 ,`prueba` text
 ,`id_tecnico` int(11)
@@ -1588,7 +1635,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `vista_prueba_ejecutadabysintoma`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_prueba_ejecutadabysintoma`  AS  select `p`.`id` AS `id_prueba`,`p`.`id_sintoma` AS `id_sintoma`,`p`.`id_catalogo` AS `id_catalogo`,`c`.`prueba` AS `prueba`,`p`.`id_tecnico` AS `id_tecnico`,`t`.`nombre` AS `tecnico`,`p`.`id_tipificacion_prueba` AS `id_tipificacion_prueba`,`tp`.`tipificacion` AS `tipificacion`,`p`.`observacion` AS `observacion`,`p`.`fecha_creacion` AS `fecha_creacion`,`p`.`tags` AS `tags` from (((`pruebas_ejecutadas` `p` join `catalogo_pruebas` `c` on((`c`.`id` = `p`.`id_catalogo`))) join `tecnicos_sistemas` `t` on((`t`.`id` = `p`.`id_tecnico`))) join `tipificacion_prueba` `tp` on((`tp`.`id` = `p`.`id_tipificacion_prueba`))) order by `p`.`fecha_creacion` desc ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_prueba_ejecutadabysintoma`  AS  select `p`.`id` AS `id_prueba`,`p`.`id_sintoma` AS `id_sintoma`,`s`.`id_ticket` AS `id_ticket`,`p`.`id_catalogo` AS `id_catalogo`,`c`.`prueba` AS `prueba`,`p`.`id_tecnico` AS `id_tecnico`,`t`.`nombre` AS `tecnico`,`p`.`id_tipificacion_prueba` AS `id_tipificacion_prueba`,`tp`.`tipificacion` AS `tipificacion`,`p`.`observacion` AS `observacion`,`p`.`fecha_creacion` AS `fecha_creacion`,`p`.`tags` AS `tags` from ((((`pruebas_ejecutadas` `p` join `catalogo_pruebas` `c` on((`c`.`id` = `p`.`id_catalogo`))) join `tecnicos_sistemas` `t` on((`t`.`id` = `p`.`id_tecnico`))) join `tipificacion_prueba` `tp` on((`tp`.`id` = `p`.`id_tipificacion_prueba`))) join `sintomas` `s` on((`s`.`id` = `p`.`id_sintoma`))) order by `p`.`fecha_creacion` desc ;
 
 -- --------------------------------------------------------
 
@@ -1684,7 +1731,6 @@ ALTER TABLE `contacto_proveedor`
 ALTER TABLE `diagnostico`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_ticket` (`id_ticket`),
-  ADD KEY `id_prueba` (`id_prueba`),
   ADD KEY `id_tecnico` (`id_tecnico`);
 
 --
@@ -1970,7 +2016,7 @@ ALTER TABLE `contacto_proveedor`
 -- AUTO_INCREMENT de la tabla `diagnostico`
 --
 ALTER TABLE `diagnostico`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `dispositivos`
@@ -2006,13 +2052,13 @@ ALTER TABLE `eventos_log_dispositivo`
 -- AUTO_INCREMENT de la tabla `eventos_log_tecnico_sistemas`
 --
 ALTER TABLE `eventos_log_tecnico_sistemas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=186;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=212;
 
 --
 -- AUTO_INCREMENT de la tabla `eventos_log_usuario`
 --
 ALTER TABLE `eventos_log_usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=503;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=514;
 
 --
 -- AUTO_INCREMENT de la tabla `grupo`
@@ -2072,7 +2118,7 @@ ALTER TABLE `proveedores`
 -- AUTO_INCREMENT de la tabla `pruebas_ejecutadas`
 --
 ALTER TABLE `pruebas_ejecutadas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `referencia_dispositivo`

@@ -33,7 +33,7 @@ async function annotateText(nombre, text) {
         if (entity.partOfSpeech.tag === 'PUNCT' && entity.dependencyEdge.label === 'P') {
             tags += ','
         }
-        console.log(`PALABRA :${colors.blue(entity.text.content)}   LABEL:${colors.green(entity.dependencyEdge.label)}   tags: ${colors.red(entity.partOfSpeech.tag)}  aspecto: ${colors.blue(entity.partOfSpeech.aspect)}`);
+        // console.log(`PALABRA :${colors.blue(entity.text.content)}   LABEL:${colors.green(entity.dependencyEdge.label)}   tags: ${colors.red(entity.partOfSpeech.tag)}  aspecto: ${colors.blue(entity.partOfSpeech.aspect)}`);
     });
 
     return tags;
