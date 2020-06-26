@@ -65,8 +65,31 @@ app.put('/tickets/InsertDiagnostico', verifyToken, (req, res) => {
     ticketsController.InsertDiagnostico(req, res, app.get('databaseManager'));
 });
 
-app.get('/tickets/getDiagnosticoByTicket', (req, res) => {
+app.get('/tickets/getDiagnosticoByTicket', verifyToken, (req, res) => {
     ticketsController.getDiagnosticoByTicket(req, res, app.get('databaseManager'));
 });
+
+app.get('/tickets/getCatalogoDiagnostico', verifyToken, (req, res) => {
+    ticketsController.getCatalogoDiagnostico(req, res, app.get('databaseManager'));
+});
+app.get('/tickets/searchCatalogoSoliciones', verifyToken, (req, res) => {
+    ticketsController.searchCatalogoSoliciones(req, res, app.get('databaseManager'));
+});
+
+app.put('/tickets/InsertSolucionEjecutada', verifyToken, (req, res) => {
+    ticketsController.InsertSolucionEjecutada(req, res, app.get('databaseManager'));
+});
+
+app.post('/tickets/changeTicketState', verifyToken, (req, res) => {
+    ticketsController.changeTicketState(req, res, app.get('databaseManager'));
+});
+app.get('/tickets/getSolucionesEjecutadasByTickets', verifyToken, (req, res) => {
+    ticketsController.getSolucionesEjecutadasByTickets(req, res, app.get('databaseManager'));
+});
+
+
+
+
+
 
 module.exports = app;

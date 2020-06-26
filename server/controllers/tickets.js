@@ -78,6 +78,17 @@ async function getListNameTechnical(reqClient, resClient, databaseManager) {
         ...dbResponse
     });
 }
+async function getCatalogoDiagnostico(reqClient, resClient, databaseManager) {
+
+    let dbResponse = await databaseManager.executeQueries("SELECT * FROM catalogo_diagnostico");
+
+    resClient.status(dbResponse.responseCode).send({
+        ...dbResponse
+    });
+
+}
+
+
 
 async function getList(reqClient, resClient, databaseManager) {
     let dbResponse = await databaseManager.executeQueries("SELECT * FROM vista_tickets WHERE estado != 'CERRADO'");
@@ -350,7 +361,7 @@ async function InsertDiagnostico(reqClient, resClient, databaseManager) {
     let validationResult = validateModel(newDiagnostico, schema.InsertDiagnostico);
     if (validationResult.responseStatus) {
         newDiagnostico.ids_pruebas_ejecutadas = newDiagnostico.ids_pruebas_ejecutadas.toString();
-        newDiagnostico.tags = await annotateText('', newDiagnostico.diagnostico);
+        newDiagnostico.ids_catalogo_diagnostico = newDiagnostico.ids_catalogo_diagnostico.toString();
         let sql = SqlString.format(`INSERT INTO diagnostico SET ?`, newDiagnostico);
         let dbResponse = await databaseManager.executeQueries(sql);
         resClient.status(dbResponse.responseCode).send({
@@ -376,16 +387,32 @@ async function getDiagnosticoByTicket(reqClient, resClient, databaseManager) {
         if (dbResponse.resultData.length > 0) {
             let ticket = dbResponse.resultData;
             for (const iterator of ticket) {
-                console.log(iterator.ids_pruebas_ejecutadas);
+
                 iterator.pruebasVinculdas = iterator.ids_pruebas_ejecutadas.split(',');
                 for (const key in iterator.pruebasVinculdas) {
                     if (iterator.pruebasVinculdas.hasOwnProperty(key)) {
                         const element = iterator.pruebasVinculdas[key];
-                        let sql = SqlString.format(`SELECT * FROM vista_prueba_ejecutadabysintoma  where id_prueba = ?`, [element]);
+                        sql = SqlString.format(`SELECT * FROM vista_prueba_ejecutadabysintoma  where id_prueba = ?`, [element]);
                         let dbResponseOther = await databaseManager.executeQueries(sql);
+
                         iterator.pruebasVinculdas[key] = {...dbResponseOther.resultData[0] };
                     }
                 }
+
+                if (iterator.ids_catalogo_diagnostico) {
+
+                    iterator.ids_catalogo_diagnostico = iterator.ids_catalogo_diagnostico.split(',');
+                    for (const key in iterator.ids_catalogo_diagnostico) {
+                        if (iterator.ids_catalogo_diagnostico.hasOwnProperty(key)) {
+                            const element = iterator.ids_catalogo_diagnostico[key];
+                            sql = SqlString.format(`SELECT * FROM catalogo_diagnostico  where id = ?`, [element]);
+                            dbResponseOther = await databaseManager.executeQueries(sql);
+
+                            iterator.ids_catalogo_diagnostico[key] = {...dbResponseOther.resultData[0] };
+                        }
+                    }
+                }
+
             }
 
             dbResponse.resultData = ticket;
@@ -397,6 +424,136 @@ async function getDiagnosticoByTicket(reqClient, resClient, databaseManager) {
                 ...dbResponse
             });
         }
+
+    } else {
+        resClient.status(validationResult.responseCode).send({
+            ...validationResult
+        });
+    }
+
+}
+
+
+async function searchCatalogoSoliciones(reqClient, resClient, databaseManager) {
+    let parameter = reqClient.query.parameter;
+    let validationResult = validateModel({ parameter }, schema.searchCatalogoSoliciones);
+    if (validationResult.responseStatus) {
+
+        let sql = SqlString.format(`SELECT * FROM catalogo_soluciones WHERE  solucion like "%${parameter}%"`);
+        console.log(sql);
+        let dbResponse = await databaseManager.executeQueries(sql);
+        resClient.status(dbResponse.responseCode).send({
+            ...dbResponse
+        });
+
+    } else {
+        resClient.status(validationResult.responseCode).send({
+            ...validationResult
+        });
+    }
+
+}
+
+async function InsertSolucionEjecutada(reqClient, resClient, databaseManager) {
+    let newSolucionEjecutada = reqClient.body;
+
+    let validationResult = validateModel(newSolucionEjecutada, schema.InsertSolucionEjecutada);
+    if (validationResult.responseStatus) {
+        let requestParameters = newSolucionEjecutada;
+        requestParameters.ids_diagnostico = requestParameters.ids_diagnostico.toString();
+        requestParameters.fecha_creacion = new Date();
+        let sql = SqlString.format(`INSERT INTO solucion_ejecutada SET ?`, newSolucionEjecutada);
+        let dbResponse = await databaseManager.executeQueries(sql);
+        resClient.status(dbResponse.responseCode).send({
+            ...dbResponse
+        });
+
+    } else {
+        resClient.status(validationResult.responseCode).send({
+            ...validationResult
+        });
+    }
+
+
+}
+
+
+async function getSolucionesEjecutadasByTickets(reqClient, resClient, databaseManager) {
+
+    let id_ticket = Number(reqClient.query.id_ticket);
+    let validationResult = validateModel({ id_ticket }, schema.getDiagnosticoByTicket);
+
+    if (validationResult.responseStatus) {
+        let sql = SqlString.format(`SELECT s.*, c.solucion, t.nombre as tecnico FROM solucion_ejecutada s  INNER JOIN catalogo_soluciones c on c.id = s.id_catalogo_solucion INNER JOIN tecnicos_sistemas t on t.id = s.id_tecnico where  ? ORDER BY s.fecha_creacion DESC`, { id_ticket });
+        let dbResponse = await databaseManager.executeQueries(sql);
+        if (dbResponse.resultData.length > 0) {
+            let solucionesEjecutadas = dbResponse.resultData;
+            for (const iterator of solucionesEjecutadas) {
+                iterator.resultado = (iterator.resultado == 0) ? false : true;
+                iterator.diagnosticosVinculados = iterator.ids_diagnostico.split(',');
+                for (const key in iterator.diagnosticosVinculados) {
+                    if (iterator.diagnosticosVinculados.hasOwnProperty(key)) {
+                        const element = iterator.diagnosticosVinculados[key];
+                        sql = SqlString.format(`SELECT d.*, t.nombre as tecnico  FROM diagnostico d inner JOIN tecnicos_sistemas t on t.id = d.id_tecnico where d.id = ?`, [element]);
+
+                        let dbResponseOther = await databaseManager.executeQueries(sql);
+
+                        iterator.diagnosticosVinculados[key] = {...dbResponseOther.resultData[0] };
+
+                        if (iterator.diagnosticosVinculados[key].ids_catalogo_diagnostico) {
+                            iterator.diagnosticosVinculados[key].ids_catalogo_diagnostico = iterator.diagnosticosVinculados[key].ids_catalogo_diagnostico.split(',');
+
+                            let attribute = iterator.diagnosticosVinculados[key].ids_catalogo_diagnostico;
+                            for (const key in attribute) {
+                                if (attribute.hasOwnProperty(key)) {
+                                    const element = attribute[key];
+                                    sql = SqlString.format(`SELECT * FROM catalogo_diagnostico  where id = ?`, [element]);
+                                    dbResponseOther = await databaseManager.executeQueries(sql);
+
+                                    attribute[key] = {...dbResponseOther.resultData[0] };
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            dbResponse.resultData = solucionesEjecutadas;
+            resClient.status(dbResponse.responseCode).send({...dbResponse });
+        } else {
+            resClient.status(dbResponse.responseCode).send({...dbResponse });
+        }
+
+    } else {
+        resClient.status(validationResult.responseCode).send({
+            ...validationResult
+        });
+    }
+}
+
+async function changeTicketState(reqClient, resClient, databaseManager) {
+
+    let ids = reqClient.body;
+    let validationResult = validateModel(ids, schema.changeTicketState);
+    if (validationResult.responseStatus) {
+        let sql = SqlString.format(`UPDATE tickets SET estado_ticket = 3, fecha_cierre = now() WHERE  id = ?;`, [ids.id_ticket]);
+        let dbResponse = await databaseManager.executeQueries(sql);
+        if (dbResponse.responseStatus) {
+            sql = SqlString.format(`UPDATE solucion_ejecutada SET resultado = true  WHERE  id = ?;`, [ids.id_catalogo_solucuiones]);
+            dbResponse = await databaseManager.executeQueries(sql);
+            resClient.status(dbResponse.responseCode).send({
+                ...dbResponse
+            });
+            io.emit('asignacionTicket', {
+                message: 'se asigno correctamente'
+            });
+        } else {
+            resClient.status(dbResponse.responseCode).send({
+                ...dbResponse
+            });
+        }
+
+
 
     } else {
         resClient.status(validationResult.responseCode).send({
@@ -424,5 +581,10 @@ module.exports = {
     getPruebaEjecutadaBySintoma,
     updateTagsBySintoma,
     InsertDiagnostico,
-    getDiagnosticoByTicket
+    getDiagnosticoByTicket,
+    getCatalogoDiagnostico,
+    searchCatalogoSoliciones,
+    InsertSolucionEjecutada,
+    getSolucionesEjecutadasByTickets,
+    changeTicketState
 }
