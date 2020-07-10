@@ -8,6 +8,7 @@ const { InterfaceLogUser, InterfaceLogAdminUser } = require('../classes/interfac
 
 app.post('/loginUsers', async(req, res) => {
 
+    
     const databaseManager = app.get('databaseManager');
     let dataUser = {
         correo: req.body.correo,
