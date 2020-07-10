@@ -4,6 +4,7 @@ const SqlString = require('sqlstring');
 
 
 
+
 async function getByUsers(reqClient, resClient, databaseManager) {
     let id_usuario = reqClient.query.id_usuario;
     let validationResult = validateModel({ id_usuario }, schema.getByUsers);
@@ -21,9 +22,29 @@ async function getByUsers(reqClient, resClient, databaseManager) {
         });
     }
 }
+// luis
+async function updateDispositivo(req, res, databaseManage) {
+    let parameters = {
+        id: req.body.id,
+        id_usuario: req.body.id_usuario
+    }
+
+    let validationResult = validateModel(parameters, schema.updateDispositivo);
+    if (validationResult.responseStatus == true) {
+
+        let sql = SqlString.format('UPDATE dispositivos SET id_usuario = ? WHERE id = ?', [parameters.id_usuario, parameters.id]);
+
+        let dbResponse = await databaseManage.executeQueries(sql);
+        res.status(dbResponse.responseCode).send(dbResponse)
+    } else {
+        res.status(validationResult.responseCode).send(validationResult)
+    }
+
+}
 
 
 
 module.exports = {
-    getByUsers
+    getByUsers,
+    updateDispositivo
 }

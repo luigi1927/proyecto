@@ -8,7 +8,7 @@ function validateModel(entity, schema) {
         return {
             responseCode: 400,
             responseStatus: false,
-            responseMessage: "REQUEST_FORBIDDEN",
+            responseMessage: "PARAMETROS INCORRECTOS",
             resultData: resultValidation.error.details[0].message
         };
     }
