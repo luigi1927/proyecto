@@ -73,7 +73,7 @@ async function Insert(reqClient, resClient, databaseManager) {
 }
 
 async function getListNameTechnical(reqClient, resClient, databaseManager) {
-    let dbResponse = await databaseManager.executeQueries("SELECT * FROM tecnicos_sistemas where id_estado  !=2");
+    let dbResponse = await databaseManager.executeQueries("SELECT t.id, u.nombre FROM tecnicos_sistemas t inner join usuarios_officina u on u.id = t.id_usuario where t.id_estado  !=2");
     resClient.status(dbResponse.responseCode).send({
         ...dbResponse
     });

@@ -2,13 +2,15 @@ const express = require('express');
 
 const {
     Insert,
+    getById,
     getByCorreo,
     oficinaGetList,
     grupoGetList,
     usuarioOficina,
     getTecnicoSistemaByid,
     getList,
-    update
+    update,
+    rolGetList
 } = require('../controllers/usuario');
 const usuario = require('../controllers/usuario');
 const { verifyToken } = require('../middlewares/authentication');
@@ -49,5 +51,14 @@ app.get('/tecnico/sistema', verifyToken, (req, res) => {
     getTecnicoSistemaByid(req, res, app.get('databaseManager'));
 });
 
+
+app.get('/usuario/rol/getList', (req, res) => {
+    rolGetList(req, res, app.get('databaseManager'));
+});
+
+
+app.get('/usuario/getById', (req, res) => {
+    getById(req, res, app.get('databaseManager'))
+});
 
 module.exports = app;

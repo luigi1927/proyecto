@@ -39,7 +39,9 @@ const update = Joi.object().keys({
 
 
 
-
+const getById = Joi.object().keys({
+    id_usuario: Joi.number().required()
+});
 
 
 
@@ -48,5 +50,6 @@ module.exports = {
     usuarioOficina,
     tecnicoSistema,
     getList,
-    update
+    update,
+    getById
 }

@@ -84,6 +84,40 @@ async function grupoGetList(reqClient, resClient, databaseManage) {
 }
 
 
+async function getById(reqClient, resClient, databaseManager) {
+
+    let id_usuario = reqClient.query.id_usuario;
+    let validateResult = validateModel({ id_usuario }, schema.getById);
+    if (validateResult.responseStatus) {
+        let sql = SqlString.format('SELECT * FROM vista_usuario_oficina  where ?', { id_usuario });
+        let dbResponse = await databaseManager.executeQueries(sql);
+        let userData = dbResponse.resultData[0];
+        // dbResponse.resultData = dbResponse.resultData[0];
+        if (userData) {
+            sql = SqlString.format('SELECT * FROM vista_dispositivos  where ?', { id_usuario });
+            dbResponse = await databaseManager.executeQueries(sql);
+            userData.Dispositivos = dbResponse.resultData;
+
+            sql = SqlString.format('SELECT * FROM vista_relacion_app  where ?', { id_usuario });
+            dbResponse = await databaseManager.executeQueries(sql);
+            userData.Aplicaciones = dbResponse.resultData;
+
+            dbResponse.resultData = userData;
+        } else {
+            dbResponse.resultData = 'EL USUARIO NO SE ENCUENTRA EN BASE DATOS'
+        }
+        return resClient.status(dbResponse.responseCode).send(dbResponse);
+
+    } else {
+        resClient.status(validateResult.responseCode).send(
+            validateResult
+        )
+    }
+
+
+
+}
+
 
 // luis
 
@@ -164,12 +198,22 @@ async function update(req, res, databaseManage) {
 
     }
 
-
-
-
     //console.log(validationResult);
 
 }
+
+
+async function rolGetList(reqClient, resClient, databaseManage) {
+
+    let sql = SqlString.format('SELECT *  FROM rol');
+    let dbResponse = await databaseManage.executeQueries(sql);
+    resClient.status(dbResponse.responseCode).send({
+        ...dbResponse
+    });
+
+}
+
+
 module.exports = {
     Insert,
     getByCorreo,
@@ -178,5 +222,7 @@ module.exports = {
     usuarioOficina,
     getTecnicoSistemaByid,
     getList,
-    update
+    update,
+    rolGetList,
+    getById
 }

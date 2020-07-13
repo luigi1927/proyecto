@@ -65,7 +65,7 @@ app.post('/loginAdmin', async(req, res) => {
     }
     let sql = SqlString.format('SELECT * FROM vista_tecnico where correo = ?', [dataUser.correo]);
     let resultLogin = await databaseManager.executeQueries(sql);
-    console.log(sql);
+    console.log(resultLogin);
     if (_.isEmpty(resultLogin.resultData)) {
         return res.status(400).json({
             responseCode: 400,
@@ -76,14 +76,14 @@ app.post('/loginAdmin', async(req, res) => {
 
     }
     resultLogin = resultLogin.resultData[0];
-    if (resultLogin.id_rol !== 1) {
-        return res.status(400).json({
-            responseCode: 400,
-            responseStatus: false,
-            responseMessage: "disculpe! usted no tiene acceso por este método",
-            resultData: null
-        });
-    }
+    // if (resultLogin.id_rol !== 1) {
+    //     return res.status(400).json({
+    //         responseCode: 400,
+    //         responseStatus: false,
+    //         responseMessage: "disculpe! usted no tiene acceso por este método",
+    //         resultData: null
+    //     });
+    // }
     if (!bcrypt.compareSync(dataUser.password, resultLogin.password)) {
         return res.status(400).json({
             responseCode: 400,
