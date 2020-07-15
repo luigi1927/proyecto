@@ -10,7 +10,17 @@ const updateDispositivo = Joi.object().keys({
 });
 
 
+const getList = Joi.object().keys({
+    posicion: Joi.number().required(),
+    cantiRegistro: Joi.number().required(),
+    disponible: Joi.boolean().required()
+});
+
+
+
+
 module.exports = {
     getByUsers,
-    updateDispositivo
+    updateDispositivo,
+    getList
 }

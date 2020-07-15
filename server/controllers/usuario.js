@@ -128,6 +128,7 @@ async function usuarioOficina(reqClient, resClient, databaseManager) {
     if (validationResult.responseStatus) {
         let sql = SqlString.format('SELECT * from vista_usuario_oficina where id_usuario = ?', id_usuario);
         let dbResponse = await databaseManager.executeQueries(sql);
+
         resClient.send(dbResponse);
     } else {
         resClient.send(validationResult);
@@ -160,12 +161,14 @@ async function getList(reqClient, resClient, databaseManager) {
     }
     let validationResult = validateModel(parameters, schema.getList);
     if (validationResult.responseStatus == true) {
+
         let totalData = parameters.cantiRegistro
-        let dbResponse = await databaseManager.executeQueries('SELECT COUNT(*) AS totalRecords from vista_usuario_oficina');
+        let dbResponse = await databaseManager.executeQueries('SELECT COUNT(*) AS totalRecords from vista_usuario_oficina ');
         let totalRecords = dbResponse.resultData[0].totalRecords;
         let totalPage = Math.floor(totalRecords / parameters.cantiRegistro);
         let sql = SqlString.format('SELECT * FROM vista_usuario_oficina order by id_usuario LIMIT ?,?', [parameters.posicion, parameters.cantiRegistro]);
         // hace una peticion  a la base de datos;
+        console.log(sql);
         dbResponse = await databaseManager.executeQueries(sql);
         let data = dbResponse.resultData;
         dbResponse.resultData = {

@@ -25,7 +25,9 @@ async function Insert(reqClient, resClient, databaseManager) {
             //     ...requestParameters
             // });
         let sql = SqlString.format(`INSERT INTO tickets SET ?`, requestParameters);
+
         let dbResponse = await databaseManager.executeQueries(sql);
+        console.log(dbResponse.responseStatus);
         if (dbResponse.responseStatus) {
             let id_ticket = dbResponse.resultData.insertId;
             for (const síntoma in Tickets) {
@@ -37,9 +39,10 @@ async function Insert(reqClient, resClient, databaseManager) {
                     delete element.nombre;
                     element.id_ticket = id_ticket;
                     element.fecha_creacion = new Date();
-                    // console.log(element.sintoma);
+
                     sql = SqlString.format(`INSERT INTO sintomas SET ?`, element);
                     dbResponse = await databaseManager.executeQueries(sql);
+                    console.log(dbResponse);
                     if (!dbResponse.responseStatus) {
                         return resClient.status(dbResponse.responseCode).send({
                             ...dbResponse
@@ -159,6 +162,7 @@ async function getByUser(reqClient, resClient, databaseManager) {
         let sql = SqlString.format(`SELECT * FROM vista_tickets where id_usuario = ?`, [id_usuario]);
 
         let dbResponse = await databaseManager.executeQueries(sql);
+        console.log(dbResponse);
         resClient.status(dbResponse.responseCode).send({
             ...dbResponse
         });
@@ -490,6 +494,7 @@ async function InsertSolucionEjecutada(reqClient, resClient, databaseManager) {
         requestParameters.fecha_creacion = new Date();
         let sql = SqlString.format(`INSERT INTO solucion_ejecutada SET ?`, newSolucionEjecutada);
         let dbResponse = await databaseManager.executeQueries(sql);
+        console.log(dbResponse);
         resClient.status(dbResponse.responseCode).send({
             ...dbResponse
         });
@@ -516,8 +521,10 @@ async function getSolucionesEjecutadasByTickets(reqClient, resClient, databaseMa
     let validationResult = validateModel({ id_ticket }, schema.getDiagnosticoByTicket);
 
     if (validationResult.responseStatus) {
-        let sql = SqlString.format(`SELECT d.*, us.nombre as tecnico FROM diagnostico d inner JOIN tecnicos_sistemas t on t.id = d.id_tecnico inner join usuarios_officina us ON us.id = t.id_usuario where id_ticket = ?`, { id_ticket });
+
+        let sql = SqlString.format(`SELECT s.*, c.solucion, us.nombre as tecnico FROM solucion_ejecutada s  INNER JOIN catalogo_soluciones c on c.id = s.id_catalogo_solucion INNER JOIN tecnicos_sistemas t on t.id = s.id_tecnico INNER JOIN usuarios_officina us on us.id = t.id_usuario where  ? ORDER BY s.fecha_creacion DESC`, { id_ticket });
         let dbResponse = await databaseManager.executeQueries(sql);
+        // console.log(sql);
         if (dbResponse.responseStatus && dbResponse.resultData.length > 0) {
             let solucionesEjecutadas = dbResponse.resultData;
             for (const iterator of solucionesEjecutadas) {
@@ -526,7 +533,7 @@ async function getSolucionesEjecutadasByTickets(reqClient, resClient, databaseMa
                 for (const key in iterator.diagnosticosVinculados) {
                     if (iterator.diagnosticosVinculados.hasOwnProperty(key)) {
                         const element = iterator.diagnosticosVinculados[key];
-                        sql = SqlString.format(`SELECT d.*, t.nombre as tecnico  FROM diagnostico d inner JOIN tecnicos_sistemas t on t.id = d.id_tecnico where d.id = ?`, [element]);
+                        sql = SqlString.format(`SELECT d.*, us.nombre as tecnico  FROM diagnostico d inner JOIN tecnicos_sistemas t on t.id = d.id_tecnico inner JOIN usuarios_officina us on us.id = t.id_usuario where d.id = ?`, [element]);
 
                         let dbResponseOther = await databaseManager.executeQueries(sql);
 
@@ -549,7 +556,8 @@ async function getSolucionesEjecutadasByTickets(reqClient, resClient, databaseMa
                     }
                 }
             }
-
+            console.log('entro aqui');
+            console.log(dbResponse);
             dbResponse.resultData = solucionesEjecutadas;
             resClient.status(dbResponse.responseCode).send({...dbResponse });
 
@@ -569,12 +577,14 @@ async function changeTicketState(reqClient, resClient, databaseManager) {
 
     let ids = reqClient.body;
     let validationResult = validateModel(ids, schema.changeTicketState);
+    console.log(ids);
     if (validationResult.responseStatus) {
         let sql = SqlString.format(`UPDATE tickets SET estado_ticket = 3, fecha_cierre = now() WHERE  id = ?;`, [ids.id_ticket]);
         let dbResponse = await databaseManager.executeQueries(sql);
         if (dbResponse.responseStatus) {
             sql = SqlString.format(`UPDATE solucion_ejecutada SET resultado = true  WHERE  id = ?;`, [ids.id_catalogo_solucuiones]);
             dbResponse = await databaseManager.executeQueries(sql);
+            console.log(dbResponse);
             resClient.status(dbResponse.responseCode).send({
                 ...dbResponse
             });

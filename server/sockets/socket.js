@@ -7,11 +7,12 @@ io.on('connection', (client) => {
 
     client.on('cerrarSesion', async(data, callack) => {
         if (data.empresa === 'platinum') {
-            let interface = new InterfaceLogAdminUser(data.id, 'SALIO DE SESION', 3);
+
+            let interface = new InterfaceLogAdminUser(data.id_tecnico, 'SALIO DE SESION', 3);
             let response = await interface.insertLogEventoTecnico();
             callack(response);
         } else {
-            let interface = new InterfaceLogUser(data.id, 'SALIO DE SESION', 3);
+            let interface = new InterfaceLogUser(data.id_usuario, 'SALIO DE SESION', 3);
             let response = await interface.insertLogEventoUsers();
 
             callack(response);
