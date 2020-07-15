@@ -5,12 +5,14 @@ const SqlString = require('sqlstring');
 const _ = require('underscore');
 const { InterfaceLogUser, InterfaceLogAdminUser } = require('../classes/interface_Log_usuario');
 const { io } = require('../sockets/socket');
+const colors = require('colors/safe');
 
 
 
 async function Insert(reqClient, resClient, databaseManager) {
 
     let Tickets = reqClient.body;
+
     let validationResult = validateModel(Tickets, schema.Insert);
     if (validationResult.responseStatus) {
         let requestParameters = {
@@ -23,7 +25,9 @@ async function Insert(reqClient, resClient, databaseManager) {
             //     ...requestParameters
             // });
         let sql = SqlString.format(`INSERT INTO tickets SET ?`, requestParameters);
+
         let dbResponse = await databaseManager.executeQueries(sql);
+        console.log(dbResponse.responseStatus);
         if (dbResponse.responseStatus) {
             let id_ticket = dbResponse.resultData.insertId;
             for (const síntoma in Tickets) {
@@ -35,9 +39,10 @@ async function Insert(reqClient, resClient, databaseManager) {
                     delete element.nombre;
                     element.id_ticket = id_ticket;
                     element.fecha_creacion = new Date();
-                    // console.log(element.sintoma);
+
                     sql = SqlString.format(`INSERT INTO sintomas SET ?`, element);
                     dbResponse = await databaseManager.executeQueries(sql);
+                    console.log(dbResponse);
                     if (!dbResponse.responseStatus) {
                         return resClient.status(dbResponse.responseCode).send({
                             ...dbResponse
@@ -70,10 +75,8 @@ async function Insert(reqClient, resClient, databaseManager) {
     }
 }
 
-
-
 async function getListNameTechnical(reqClient, resClient, databaseManager) {
-    let dbResponse = await databaseManager.executeQueries("SELECT * FROM tecnicos_sistemas where id_estado  !=2");
+    let dbResponse = await databaseManager.executeQueries("SELECT t.id, u.nombre FROM tecnicos_sistemas t inner join usuarios_officina u on u.id = t.id_usuario where t.id_estado  !=2");
     resClient.status(dbResponse.responseCode).send({
         ...dbResponse
     });
@@ -85,10 +88,7 @@ async function getCatalogoDiagnostico(reqClient, resClient, databaseManager) {
     resClient.status(dbResponse.responseCode).send({
         ...dbResponse
     });
-
 }
-
-
 
 async function getList(reqClient, resClient, databaseManager) {
     let dbResponse = await databaseManager.executeQueries("SELECT * FROM vista_tickets WHERE estado != 'CERRADO'");
@@ -97,13 +97,14 @@ async function getList(reqClient, resClient, databaseManager) {
     });
 
 }
+//ok luis
 async function assignTechnical(reqClient, resClient, databaseManager) {
 
     let ids = reqClient.body;
     let validationResult = validateModel(ids, schema.assignTechnical);
     if (validationResult.responseStatus) {
-        const id_estado = (ids.id_tecnico === null) ? 1 : 2;
-        let sql = SqlString.format(`UPDATE tickets SET estado_ticket = ?, id_tecnico_asignado =? WHERE  id = ?;`, [id_estado, ids.id_tecnico, ids.id_ticket]);
+        const id_estado = (ids.id_tecnico_asignado === null) ? 1 : 2;
+        let sql = SqlString.format(`UPDATE tickets SET estado_ticket = ?, id_tecnico_asignado =? WHERE  id = ?;`, [id_estado, ids.id_tecnico_asignado, ids.id_ticket]);
         let dbResponse = await databaseManager.executeQueries(sql);
 
         resClient.status(dbResponse.responseCode).send({
@@ -113,6 +114,13 @@ async function assignTechnical(reqClient, resClient, databaseManager) {
             io.emit('asignacionTicket', {
                 message: 'se asigno correctamente'
             });
+            let observacion = {
+                id_ticket: ids.id_ticket,
+                observacion: "ASIGNACION AL TECNICO",
+                id_tecnico_asignado: ids.id_tecnico_asignado
+            }
+            observacion = JSON.stringify(observacion);
+            new InterfaceLogAdminUser(ids.id_tecnico, observacion, 4).insertLogEventoTecnico();
         }
 
     } else {
@@ -122,6 +130,8 @@ async function assignTechnical(reqClient, resClient, databaseManager) {
     }
 
 }
+
+
 async function getByTechnical(reqClient, resClient, databaseManager) {
 
     let id_tecnico = reqClient.query.id_tecnico;
@@ -134,6 +144,7 @@ async function getByTechnical(reqClient, resClient, databaseManager) {
         resClient.status(dbResponse.responseCode).send({
             ...dbResponse
         });
+        console.log(getByTechnical);
 
     } else {
         resClient.status(validationResult.responseCode).send({
@@ -151,6 +162,7 @@ async function getByUser(reqClient, resClient, databaseManager) {
         let sql = SqlString.format(`SELECT * FROM vista_tickets where id_usuario = ?`, [id_usuario]);
 
         let dbResponse = await databaseManager.executeQueries(sql);
+        console.log(dbResponse);
         resClient.status(dbResponse.responseCode).send({
             ...dbResponse
         });
@@ -165,7 +177,6 @@ async function getByUser(reqClient, resClient, databaseManager) {
 
 
 async function getSintomas(reqClient, resClient, databaseManager) {
-
     let id_ticket = reqClient.query.id_ticket;
     let validationResult = validateModel({ id_ticket }, schema.getSintomas);
     if (validationResult.responseStatus) {
@@ -208,8 +219,6 @@ async function getSintomas(reqClient, resClient, databaseManager) {
 
 }
 
-
-
 async function getComentariosTecnicosByTicket(reqClient, resClient, databaseManager) {
 
     let id_ticket = reqClient.query.id_ticket;
@@ -238,7 +247,7 @@ async function getTipoComentarioTecnico(reqClient, resClient, databaseManager) {
     });
 }
 
-
+//ok luis
 async function InsertComentarioTecnico(reqClient, resClient, databaseManager) {
 
     let objectComentario = reqClient.body;
@@ -256,6 +265,12 @@ async function InsertComentarioTecnico(reqClient, resClient, databaseManager) {
                 message: 'ok'
             });
         }
+        let observacion = {
+            id_ticket: requestParameters.id_ticket,
+            observacion: "DIAGNOSTICO TECNICO "
+        }
+        observacion = JSON.stringify(observacion);
+        new InterfaceLogAdminUser(requestParameters.id_tecnico, observacion, 4).insertLogEventoTecnico();
 
     } else {
 
@@ -336,6 +351,7 @@ async function getPruebaEjecutadaBySintoma(reqClient, resClient, databaseManager
         });
     }
 }
+//NO GUARDA
 async function updateTagsBySintoma(reqClient, resClient, databaseManager) {
     let updateTagsBySintoma = reqClient.body
     let validationResult = validateModel(updateTagsBySintoma, schema.updateTagsBySintoma);
@@ -349,13 +365,21 @@ async function updateTagsBySintoma(reqClient, resClient, databaseManager) {
         resClient.status(dbResponse.responseCode).send({
             ...dbResponse
         });
+        let observacion = {
+            id_ticket: updateTagsBySintoma.id_ticket,
+            observacion: "SE ALMACENO EL SINTOMA ",
+            id_tecnico_asignado: updateTagsBySintoma.id_tecnico_asignado
+        }
+        observacion = JSON.stringify(observacion);
+        new InterfaceLogAdminUser(updateTagsBySintoma.id_tecnico, observacion, 4).insertLogEventoTecnico();
+
     } else {
         resClient.status(validationResult.responseCode).send({
             ...validationResult
         });
     }
 }
-
+//ok
 async function InsertDiagnostico(reqClient, resClient, databaseManager) {
     let newDiagnostico = reqClient.body;
     let validationResult = validateModel(newDiagnostico, schema.InsertDiagnostico);
@@ -367,6 +391,12 @@ async function InsertDiagnostico(reqClient, resClient, databaseManager) {
         resClient.status(dbResponse.responseCode).send({
             ...dbResponse
         });
+        let observacion = {
+            id_ticket: newDiagnostico.id_ticket,
+            observacion: "SE EJECUTO EL DIAGNOSTICO "
+        }
+        observacion = JSON.stringify(observacion);
+        new InterfaceLogAdminUser(newDiagnostico.id_tecnico, observacion, 4).insertLogEventoTecnico();
 
     } else {
         resClient.status(validationResult.responseCode).send({
@@ -375,16 +405,16 @@ async function InsertDiagnostico(reqClient, resClient, databaseManager) {
     }
 
 }
-
+//OK
 async function getDiagnosticoByTicket(reqClient, resClient, databaseManager) {
 
     let id_ticket = reqClient.query.id_ticket;
     let validationResult = validateModel({ id_ticket }, schema.getDiagnosticoByTicket);
     if (validationResult.responseStatus) {
-        let sql = SqlString.format(`SELECT d.*, t.nombre as tecnico  FROM diagnostico d inner JOIN tecnicos_sistemas t on t.id = d.id_tecnico where id_ticket = ?`, [id_ticket]);
+        let sql = SqlString.format(`SELECT d.*, us.nombre as tecnico FROM diagnostico d inner JOIN tecnicos_sistemas t on t.id = d.id_tecnico inner join usuarios_officina us ON us.id = t.id_usuario where id_ticket =?`, [id_ticket]);
 
         let dbResponse = await databaseManager.executeQueries(sql);
-        if (dbResponse.resultData.length > 0) {
+        if (dbResponse.responseStatus && dbResponse.resultData.length > 0) {
             let ticket = dbResponse.resultData;
             for (const iterator of ticket) {
 
@@ -433,10 +463,10 @@ async function getDiagnosticoByTicket(reqClient, resClient, databaseManager) {
 
 }
 
-
-async function searchCatalogoSoliciones(reqClient, resClient, databaseManager) {
+//OK
+async function searchCatalogoSoluciones(reqClient, resClient, databaseManager) {
     let parameter = reqClient.query.parameter;
-    let validationResult = validateModel({ parameter }, schema.searchCatalogoSoliciones);
+    let validationResult = validateModel({ parameter }, schema.searchCatalogoSoluciones);
     if (validationResult.responseStatus) {
 
         let sql = SqlString.format(`SELECT * FROM catalogo_soluciones WHERE  solucion like "%${parameter}%"`);
@@ -453,21 +483,28 @@ async function searchCatalogoSoliciones(reqClient, resClient, databaseManager) {
     }
 
 }
-
+//ok2
 async function InsertSolucionEjecutada(reqClient, resClient, databaseManager) {
     let newSolucionEjecutada = reqClient.body;
-
     let validationResult = validateModel(newSolucionEjecutada, schema.InsertSolucionEjecutada);
     if (validationResult.responseStatus) {
+
         let requestParameters = newSolucionEjecutada;
         requestParameters.ids_diagnostico = requestParameters.ids_diagnostico.toString();
         requestParameters.fecha_creacion = new Date();
         let sql = SqlString.format(`INSERT INTO solucion_ejecutada SET ?`, newSolucionEjecutada);
         let dbResponse = await databaseManager.executeQueries(sql);
+        console.log(dbResponse);
         resClient.status(dbResponse.responseCode).send({
             ...dbResponse
         });
 
+        let observacion = {
+            id_ticket: requestParameters.id_ticket,
+            observacion: "EJECUTO SOLUCION"
+        }
+        observacion = JSON.stringify(observacion);
+        new InterfaceLogAdminUser(requestParameters.id_tecnico, observacion, 4).insertLogEventoTecnico();
     } else {
         resClient.status(validationResult.responseCode).send({
             ...validationResult
@@ -477,16 +514,18 @@ async function InsertSolucionEjecutada(reqClient, resClient, databaseManager) {
 
 }
 
-
+//ok2
 async function getSolucionesEjecutadasByTickets(reqClient, resClient, databaseManager) {
 
     let id_ticket = Number(reqClient.query.id_ticket);
     let validationResult = validateModel({ id_ticket }, schema.getDiagnosticoByTicket);
 
     if (validationResult.responseStatus) {
-        let sql = SqlString.format(`SELECT s.*, c.solucion, t.nombre as tecnico FROM solucion_ejecutada s  INNER JOIN catalogo_soluciones c on c.id = s.id_catalogo_solucion INNER JOIN tecnicos_sistemas t on t.id = s.id_tecnico where  ? ORDER BY s.fecha_creacion DESC`, { id_ticket });
+
+        let sql = SqlString.format(`SELECT s.*, c.solucion, us.nombre as tecnico FROM solucion_ejecutada s  INNER JOIN catalogo_soluciones c on c.id = s.id_catalogo_solucion INNER JOIN tecnicos_sistemas t on t.id = s.id_tecnico INNER JOIN usuarios_officina us on us.id = t.id_usuario where  ? ORDER BY s.fecha_creacion DESC`, { id_ticket });
         let dbResponse = await databaseManager.executeQueries(sql);
-        if (dbResponse.resultData.length > 0) {
+        // console.log(sql);
+        if (dbResponse.responseStatus && dbResponse.resultData.length > 0) {
             let solucionesEjecutadas = dbResponse.resultData;
             for (const iterator of solucionesEjecutadas) {
                 iterator.resultado = (iterator.resultado == 0) ? false : true;
@@ -494,7 +533,7 @@ async function getSolucionesEjecutadasByTickets(reqClient, resClient, databaseMa
                 for (const key in iterator.diagnosticosVinculados) {
                     if (iterator.diagnosticosVinculados.hasOwnProperty(key)) {
                         const element = iterator.diagnosticosVinculados[key];
-                        sql = SqlString.format(`SELECT d.*, t.nombre as tecnico  FROM diagnostico d inner JOIN tecnicos_sistemas t on t.id = d.id_tecnico where d.id = ?`, [element]);
+                        sql = SqlString.format(`SELECT d.*, us.nombre as tecnico  FROM diagnostico d inner JOIN tecnicos_sistemas t on t.id = d.id_tecnico inner JOIN usuarios_officina us on us.id = t.id_usuario where d.id = ?`, [element]);
 
                         let dbResponseOther = await databaseManager.executeQueries(sql);
 
@@ -517,9 +556,12 @@ async function getSolucionesEjecutadasByTickets(reqClient, resClient, databaseMa
                     }
                 }
             }
-
+            console.log('entro aqui');
+            console.log(dbResponse);
             dbResponse.resultData = solucionesEjecutadas;
             resClient.status(dbResponse.responseCode).send({...dbResponse });
+
+
         } else {
             resClient.status(dbResponse.responseCode).send({...dbResponse });
         }
@@ -530,31 +572,36 @@ async function getSolucionesEjecutadasByTickets(reqClient, resClient, databaseMa
         });
     }
 }
-
+//OK
 async function changeTicketState(reqClient, resClient, databaseManager) {
 
     let ids = reqClient.body;
     let validationResult = validateModel(ids, schema.changeTicketState);
+    console.log(ids);
     if (validationResult.responseStatus) {
         let sql = SqlString.format(`UPDATE tickets SET estado_ticket = 3, fecha_cierre = now() WHERE  id = ?;`, [ids.id_ticket]);
         let dbResponse = await databaseManager.executeQueries(sql);
         if (dbResponse.responseStatus) {
             sql = SqlString.format(`UPDATE solucion_ejecutada SET resultado = true  WHERE  id = ?;`, [ids.id_catalogo_solucuiones]);
             dbResponse = await databaseManager.executeQueries(sql);
+            console.log(dbResponse);
             resClient.status(dbResponse.responseCode).send({
                 ...dbResponse
             });
             io.emit('asignacionTicket', {
                 message: 'se asigno correctamente'
             });
+            let observacion = {
+                id_ticket: ids.id_ticket,
+                observacion: "CAMBIO ESTADO"
+            }
+            observacion = JSON.stringify(observacion);
+            new InterfaceLogAdminUser(ids.id_tecnico, observacion, 4).insertLogEventoTecnico();
         } else {
             resClient.status(dbResponse.responseCode).send({
                 ...dbResponse
             });
         }
-
-
-
     } else {
         resClient.status(validationResult.responseCode).send({
             ...validationResult
@@ -583,7 +630,7 @@ module.exports = {
     InsertDiagnostico,
     getDiagnosticoByTicket,
     getCatalogoDiagnostico,
-    searchCatalogoSoliciones,
+    searchCatalogoSoluciones,
     InsertSolucionEjecutada,
     getSolucionesEjecutadasByTickets,
     changeTicketState

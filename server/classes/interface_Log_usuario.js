@@ -37,6 +37,7 @@ class InterfaceLogAdminUser {
 
 }
 
+
 module.exports = {
     InterfaceLogUser,
     InterfaceLogAdminUser

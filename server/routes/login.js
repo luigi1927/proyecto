@@ -5,7 +5,7 @@ const _ = require('underscore');
 const { createAuthorization } = require('../libraries/authenticationJWT');
 const SqlString = require('sqlstring');
 const { InterfaceLogUser, InterfaceLogAdminUser } = require('../classes/interface_Log_usuario');
-
+//ok2
 app.post('/loginUsers', async(req, res) => {
 
     
@@ -41,6 +41,7 @@ app.post('/loginUsers', async(req, res) => {
     let token = createAuthorization(resultLogin);
     res.json({
         responseCode: 200,
+        responseStatus: true,
         responseMessage: "ok",
         resultData: {
             token,
@@ -55,7 +56,7 @@ app.post('/loginUsers', async(req, res) => {
 
 })
 
-
+//pendiente
 app.post('/loginAdmin', async(req, res) => {
 
     const databaseManager = app.get('databaseManager');
@@ -63,8 +64,9 @@ app.post('/loginAdmin', async(req, res) => {
         correo: req.body.correo,
         password: req.body.password
     }
-    let sql = SqlString.format('SELECT *, id as id_tecnico FROM `tecnicos_sistemas` where correo = ? and id_estado = ?', [dataUser.correo, 1]);
+    let sql = SqlString.format('SELECT * FROM vista_tecnico where correo = ?', [dataUser.correo]);
     let resultLogin = await databaseManager.executeQueries(sql);
+    console.log(resultLogin);
     if (_.isEmpty(resultLogin.resultData)) {
         return res.status(400).json({
             responseCode: 400,
@@ -74,16 +76,15 @@ app.post('/loginAdmin', async(req, res) => {
         });
 
     }
-
     resultLogin = resultLogin.resultData[0];
-    if (resultLogin.id_rol !== 1) {
-        return res.status(400).json({
-            responseCode: 400,
-            responseStatus: false,
-            responseMessage: "disculpe! usted no tiene acceso por este método",
-            resultData: null
-        });
-    }
+    // if (resultLogin.id_rol !== 1) {
+    //     return res.status(400).json({
+    //         responseCode: 400,
+    //         responseStatus: false,
+    //         responseMessage: "disculpe! usted no tiene acceso por este método",
+    //         resultData: null
+    //     });
+    // }
     if (!bcrypt.compareSync(dataUser.password, resultLogin.password)) {
         return res.status(400).json({
             responseCode: 400,

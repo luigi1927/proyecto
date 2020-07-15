@@ -4,14 +4,15 @@ const Joi = require('@hapi/joi');
 
 const Insert = Joi.array().items(Joi.object().keys({
     id_usuario: Joi.number().required(),
-    id_dispositivo: Joi.number(),
-    id_aplicacion: Joi.number(),
+    id_dispositivo: Joi.number().allow(null),
+    id_aplicacion: Joi.number().allow(null),
     sintoma: Joi.string().required(),
-}));
+}).required());
 
 
 const assignTechnical = Joi.object().keys({
-    id_tecnico: Joi.number().required().allow(null),
+    id_tecnico_asignado: Joi.number().required().allow(null),
+    id_tecnico: Joi.number().required(),
     id_ticket: Joi.number().required(),
 });
 
@@ -56,29 +57,30 @@ const InsertDiagnostico = Joi.object().keys({
     id_tecnico: Joi.number().required(),
     id_ticket: Joi.number().required(),
     diagnostico: Joi.string().required(),
-    ids_pruebas_ejecutadas: Joi.array().items(Joi.number().required()).allow(null),
-    ids_catalogo_diagnostico: Joi.array().items(Joi.number().required()).allow(null)
+    ids_pruebas_ejecutadas: Joi.array().items(Joi.number().required()).allow(null).required(),
+    ids_catalogo_diagnostico: Joi.array().items(Joi.number().required()).allow(null).required()
 });
 
 const getDiagnosticoByTicket = Joi.object().keys({
     id_ticket: Joi.number().required()
 });
 
-const searchCatalogoSoliciones = Joi.object().keys({
+const searchCatalogoSoluciones = Joi.object().keys({
     parameter: Joi.string().required().allow('')
 });
 
 const InsertSolucionEjecutada = Joi.object().keys({
     id_catalogo_solucion: Joi.number().required(),
     id_ticket: Joi.number().required(),
-    ids_diagnostico: Joi.array().items(Joi.number().required()),
+    ids_diagnostico: Joi.array().items(Joi.number().required()).required(),
     id_tecnico: Joi.number().required(),
-    resultado: Joi.boolean().required()
+    resultado: Joi.boolean().default(false)
 });
 
 const changeTicketState = Joi.object().keys({
+    id_tecnico: Joi.number().required(),
     id_ticket: Joi.number().required(),
-    id_catalogo_solucuiones: Joi.number().required()
+    id_catalogo_soluciones: Joi.number().required()
 });
 
 module.exports = {
@@ -93,7 +95,7 @@ module.exports = {
     updateTagsBySintoma,
     InsertDiagnostico,
     getDiagnosticoByTicket,
-    searchCatalogoSoliciones,
+    searchCatalogoSoluciones,
     InsertSolucionEjecutada,
     changeTicketState
 }

@@ -31,4 +31,4 @@ require('./sockets/socket');
 app.use(require('./routes/index'));
 app.set('port', process.env.PORT);
 // escuchando el servidor
-server.listen(process.env.PORT, () => console.log('Escuchando en el puerto: ', process.env.PORT));
+server.listen(process.env.PORT, () => console.log(`Escuchando por el puerto ${process.env.PORT}`));
