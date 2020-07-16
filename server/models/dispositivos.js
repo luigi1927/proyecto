@@ -16,11 +16,18 @@ const getList = Joi.object().keys({
     disponible: Joi.boolean().required()
 });
 
+const searchList = Joi.object().keys({
+    posicion: Joi.number().required(),
+    cantiRegistro: Joi.number().required(),
+    parameter: Joi.string().required()
+});
+
 
 
 
 module.exports = {
     getByUsers,
     updateDispositivo,
-    getList
+    getList,
+    searchList
 }

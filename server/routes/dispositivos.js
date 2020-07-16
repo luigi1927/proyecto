@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const { getByUsers, updateDispositivo, getTipo, getList } = require('../controllers/dispositivos');
+const { getByUsers, updateDispositivo, getTipo, getList, searchList } = require('../controllers/dispositivos');
 const { verifyToken } = require('../middlewares/authentication');
 const { update } = require('../controllers/usuario');
 //ok2
@@ -20,6 +20,10 @@ app.get('/dispositivo/getTipo', verifyToken, (req, res) => {
 
 app.get('/dispositivo/getList', (req, res) => {
     getList(req, res, app.get('databaseManager'));
+});
+
+app.get('/dispositivo/searchList', (req, res) => {
+    searchList(req, res, app.get('databaseManager'));
 });
 
 module.exports = app;

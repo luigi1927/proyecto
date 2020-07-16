@@ -29,8 +29,19 @@ async function getByRelationAppUsers(reqClient, resClient, databaseManager) {
     }
 }
 
+async function getApp(req, res, databaseManage) {
+
+    let sql = SqlString.format('SELECT *  FROM aplicaciones');
+    let dbResponse = await databaseManage.executeQueries(sql);
+    res.status(dbResponse.responseCode).send({
+        ...dbResponse
+    });
+
+}
+
 
 
 module.exports = {
-    getByRelationAppUsers
+    getByRelationAppUsers,
+    getApp
 }

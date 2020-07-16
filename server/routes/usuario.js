@@ -10,7 +10,8 @@ const {
     getTecnicoSistemaByid,
     getList,
     update,
-    rolGetList
+    rolGetList,
+    searchList
 } = require('../controllers/usuario');
 const usuario = require('../controllers/usuario');
 const { verifyToken } = require('../middlewares/authentication');
@@ -58,7 +59,11 @@ app.get('/usuario/rol/getList', (req, res) => {
 
 
 app.get('/usuario/getById', (req, res) => {
-    getById(req, res, app.get('databaseManager'))
+    getById(req, res, app.get('databaseManager'));
+});
+
+app.get('/usuario/searchList', (req, res) => {
+    searchList(req, res, app.get('databaseManager'));
 });
 
 module.exports = app;

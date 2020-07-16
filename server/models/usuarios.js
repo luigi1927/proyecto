@@ -1,3 +1,4 @@
+const { allow } = require('@hapi/joi');
 const Joi = require('@hapi/joi');
 //const allow = require('allow');
 
@@ -43,6 +44,12 @@ const getById = Joi.object().keys({
     id_usuario: Joi.number().required()
 });
 
+const searchList = Joi.object().keys({
+    posicion: Joi.number().required(),
+    cantiRegistro: Joi.number().required(),
+    parameter: Joi.string().required()
+});
+
 
 
 module.exports = {
@@ -51,5 +58,6 @@ module.exports = {
     tecnicoSistema,
     getList,
     update,
-    getById
+    getById,
+    searchList
 }

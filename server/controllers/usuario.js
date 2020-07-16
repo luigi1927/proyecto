@@ -201,8 +201,6 @@ async function update(req, res, databaseManage) {
 
     }
 
-    //console.log(validationResult);
-
 }
 
 
@@ -215,7 +213,41 @@ async function rolGetList(reqClient, resClient, databaseManage) {
     });
 
 }
+//en proceso
+async function searchList(req, res, databaseManager) {
 
+    let parameters = {
+        posicion: Number(req.query.posicion),
+        cantiRegistro: Number(req.query.cantiRegistro),
+        parameter: String(req.query.parameter)
+    }
+    let validationResult = validateModel(parameters, schema.searchList);
+    if (validationResult.responseStatus == true) {
+        let totalData = parameters.cantiRegistro;
+        let search = SqlString.escape('%' + parameters.parameter + '%');
+
+        let dbResponse = await databaseManager.executeQueries(`SELECT COUNT(*) AS totalRecords from vista_usuario_oficina  WHERE nombre LIKE ${search} OR correo LIKE ${search} OR cargo LIKE ${search} or cedula LIKE ${search}`);
+
+
+        let totalRecords = dbResponse.resultData[0].totalRecords;
+        let totalPage = Math.floor(totalRecords / parameters.cantiRegistro);
+
+        let sql = SqlString.format(`SELECT * FROM vista_usuario_oficina WHERE nombre LIKE ${search} OR correo LIKE ${search} OR cargo LIKE ${search} or cedula LIKE ${search}  ORDER by id_usuario 	LIMIT ?,?`, [parameters.posicion, parameters.cantiRegistro]);
+        dbResponse = await databaseManager.executeQueries(sql);
+        let data = dbResponse.resultData;
+        console.log(sql);
+        dbResponse.resultData = {
+            totalRecords,
+            totalPage,
+            totalData,
+            posicion: parameters.posicion,
+            data: data
+        }
+        res.status(dbResponse.responseCode).send(dbResponse);
+    } else {
+        res.status(validationResult.responseCode).send(validationResult);
+    }
+}
 
 module.exports = {
     Insert,
@@ -227,5 +259,6 @@ module.exports = {
     getList,
     update,
     rolGetList,
-    getById
+    getById,
+    searchList
 }

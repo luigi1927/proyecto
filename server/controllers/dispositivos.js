@@ -59,10 +59,6 @@ async function getList(req, res, databaseManager) {
         disponible: (req.query.disponible == 'true')
     }
     let validationResult = validateModel(parameters, schema.getList);
-    console.log(parameters.disponible);
-
-
-
     if (validationResult.responseStatus == true) {
         let sqlCountTotal = '';
         let sql;
@@ -74,18 +70,12 @@ async function getList(req, res, databaseManager) {
             let strignIdTipo = (parameters.id_tipo_dispositivo) ? `where id_tipo_dispositivo = ${parameters.id_tipo_dispositivo} ` : '';
             sqlCountTotal = `SELECT COUNT(*) AS totalRecords FROM vista_dispositivos  ${strignIdTipo}`;
             sql = SqlString.format(`SELECT * FROM vista_dispositivos  ${strignIdTipo} order by id_usuario LIMIT ?,?`, [parameters.posicion, parameters.cantiRegistro]);
-
         }
-        console.log(sqlCountTotal);
-        console.log(sql);
         let totalData = parameters.cantiRegistro;
         let dbResponse = await databaseManager.executeQueries(sqlCountTotal);
         console.log(dbResponse);
         let totalRecords = dbResponse.resultData[0].totalRecords;
-
-        // console.log(colors.blue(totalRecords));
         let totalPage = Math.floor(totalRecords / parameters.cantiRegistro);
-
         dbResponse = await databaseManager.executeQueries(sql);
         let data = dbResponse.resultData;
         dbResponse.resultData = {
@@ -101,11 +91,45 @@ async function getList(req, res, databaseManager) {
     }
 }
 
+async function searchList(req, res, databaseManager) {
+
+    let parameters = {
+        posicion: Number(req.query.posicion),
+        cantiRegistro: Number(req.query.cantiRegistro),
+        parameter: String(req.query.parameter)
+    }
+    let validationResult = validateModel(parameters, schema.searchList);
+    if (validationResult.responseStatus == true) {
+        let totalData = parameters.cantiRegistro;
+        let search = SqlString.escape('%' + parameters.parameter + '%');
+        let dbResponse = await databaseManager.executeQueries(`SELECT COUNT(*) AS totalRecords from vista_dispositivos  WHERE usuario LIKE ${search} OR placa LIKE ${search} OR origen LIKE ${search}`);
+        let totalRecords = dbResponse.resultData[0].totalRecords;
+        let totalPage = Math.floor(totalRecords / parameters.cantiRegistro);
+        let sql = SqlString.format(`SELECT * FROM vista_dispositivos WHERE usuario LIKE ${search} OR placa LIKE ${search} OR origen LIKE ${search}  ORDER by id_usuario LIMIT ?,?`, [parameters.posicion, parameters.cantiRegistro]);
+        dbResponse = await databaseManager.executeQueries(sql);
+        let data = dbResponse.resultData;
+        console.log(sql);
+        dbResponse.resultData = {
+            totalRecords,
+            totalPage,
+            totalData,
+            posicion: parameters.posicion,
+            data: data
+        }
+        
+        res.status(dbResponse.responseCode).send(dbResponse);
+    } else {
+        res.status(validationResult.responseCode).send(validationResult);
+    }
+}
+
+
 
 module.exports = {
     getByUsers,
     updateDispositivo,
     getTipo,
     getList,
+    searchList
 
 }
