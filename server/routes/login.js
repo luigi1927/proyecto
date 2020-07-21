@@ -8,7 +8,7 @@ const { InterfaceLogUser, InterfaceLogAdminUser } = require('../classes/interfac
 //ok2
 app.post('/loginUsers', async(req, res) => {
 
-    
+
     const databaseManager = app.get('databaseManager');
     let dataUser = {
         correo: req.body.correo,
@@ -45,7 +45,9 @@ app.post('/loginUsers', async(req, res) => {
         responseMessage: "ok",
         resultData: {
             token,
-            exp: 60 * process.env.CADUCIDAD_TOKEN
+            exp: 60 * process.env.CADUCIDAD_TOKEN,
+            nombre: resultLogin.nombre,
+            correo: dataUser.correo
         }
     });
     let interface = new InterfaceLogUser(resultLogin.id, 'INGRESO', 1);
@@ -101,7 +103,9 @@ app.post('/loginAdmin', async(req, res) => {
         responseMessage: "ok",
         resultData: {
             token,
-            exp: 60 * process.env.CADUCIDAD_TOKEN
+            exp: 60 * process.env.CADUCIDAD_TOKEN,
+            nombre: resultLogin.nombre,
+            correo: dataUser.correo
         }
     });
     let interface = new InterfaceLogAdminUser(resultLogin.id, 'INGRESO', 1);
