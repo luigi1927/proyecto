@@ -46,7 +46,7 @@ async function getApp(req, res, databaseManager) {
 
     }
     let dbResponse = await databaseManager.executeQueries(sql);
-    if (dbResponse.responseStatus && dbResponse.resultData.length)
+    if (dbResponse.responseStatus && dbResponse.resultData.length > 0)
 
         res.status(dbResponse.responseCode).send(dbResponse);
 }
