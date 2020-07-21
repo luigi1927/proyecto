@@ -6,7 +6,8 @@ const getByUsers = Joi.object().keys({
 
 const updateDispositivo = Joi.object().keys({
     id: Joi.number().required(),
-    id_usuario: Joi.number().allow(null).required()
+    id_usuario: Joi.number().allow(null).required(),
+    id_tecnico: Joi.number().required()
 });
 
 

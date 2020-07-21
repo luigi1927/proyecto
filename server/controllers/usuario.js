@@ -3,9 +3,10 @@ const schema = require('../models/usuarios');
 const { validateModel } = require('../libraries/validationModel');
 const SqlString = require('sqlstring');
 const _ = require('underscore');
-const { InterfaceLogUser } = require('../classes/interface_Log_usuario');
+const { InterfaceLogUser, InterfaceLogAdminUser } = require('../classes/interface_Log_usuario');
 const colors = require('colors/safe');
 const { number } = require('@hapi/joi');
+const { io } = require('../sockets/socket');
 
 //validar nombre de la tabla y columna "password",
 async function Insert(reqClient, resClient, databaseManager) {
@@ -183,22 +184,37 @@ async function getList(reqClient, resClient, databaseManager) {
         resClient.status(validationResult.responseCode).send(validationResult);
     }
 }
-//luis
-async function update(req, res, databaseManage) {
+//luis LOG agregado
+async function update(req, res, databaseManager) {
     let parameters = {
         attribute: req.body.attribute,
         value: req.body.value,
-        id_usuario: req.body.id_usuario
+        id_usuario: req.body.id_usuario,
+        id_tecnico: req.body.id_tecnico
     }
     let validationResult = validateModel(parameters, schema.update);
     if (validationResult.responseStatus == true) {
-
         let sql = SqlString.format(`UPDATE usuarios_officina SET  ${parameters.attribute} = ? WHERE id = ?`, [parameters.value, parameters.id_usuario]);
-        let dbResponse = await databaseManage.executeQueries(sql);
-        res.status(dbResponse.responseCode).send(dbResponse)
-    } else {
-        res.status(validationResult.responseCode).send(validationResult);
+        let dbResponse = await databaseManager.executeQueries(sql);
+        res.status(dbResponse.responseCode).send({
+            ...dbResponse
+        });
+        if (dbResponse.responseStatus) {
+            io.emit('usuarioactualizado', {
+                message: 'se actualizo correctamente'
+            });
+            let observacion = {
+                id_tecnico: req.body.id_tecnico,
+                observacion: "USUARIO ACTUALIZADO"
+            }
+            observacion = JSON.stringify(observacion);
+            new InterfaceLogAdminUser(parameters.id_tecnico, observacion, 4).insertLogEventoTecnico();
+        }
 
+    } else {
+        res.status(validationResult.responseCode).send({
+            ...validationResult
+        });
     }
 
 }

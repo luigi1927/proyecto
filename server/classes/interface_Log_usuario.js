@@ -34,8 +34,16 @@ class InterfaceLogAdminUser {
         let response = await executeQueries(sql);
         return response;
     }
+    async insertLogEventoDispositivo() {
+        let sql = SqlString.format(`INSERT INTO eventos_log_dispositivo SET ?`, this.requestParameters);
+        let response = await executeQueries(sql);
+        return response;
+    }
 
 }
+
+
+
 
 
 module.exports = {

@@ -1,7 +1,8 @@
 const schema = require('../models/dispositivos');
 const { validateModel } = require('../libraries/validationModel');
 const SqlString = require('sqlstring');
-
+const { InterfaceLogUser, InterfaceLogAdminUser } = require('../classes/interface_Log_usuario');
+const { io } = require('../sockets/socket');
 
 
 
@@ -30,11 +31,12 @@ async function getByUsers(reqClient, resClient, databaseManager) {
         });
     }
 }
-// luis
-async function updateDispositivo(req, res, databaseManage) {
+// luis evento LOG 
+async function updateDispositivo(req, res, databaseManager) {
     let parameters = {
         id: req.body.id,
-        id_usuario: req.body.id_usuario
+        id_usuario: req.body.id_usuario,
+        id_tecnico: req.body.id_tecnico
     }
 
     let validationResult = validateModel(parameters, schema.updateDispositivo);
@@ -42,10 +44,26 @@ async function updateDispositivo(req, res, databaseManage) {
 
         let sql = SqlString.format('UPDATE dispositivos SET id_usuario = ? WHERE id = ?', [parameters.id_usuario, parameters.id]);
 
-        let dbResponse = await databaseManage.executeQueries(sql);
-        res.status(dbResponse.responseCode).send(dbResponse)
+        let dbResponse = await databaseManager.executeQueries(sql);
+        res.status(dbResponse.responseCode).send({
+            ...dbResponse
+        });
+        if (dbResponse.responseStatus) {
+            io.emit('dispositivoactualizado', {
+                message: 'se actualizo correctamente'
+            });
+            let observacion = {
+                id_tecnico: req.body.id_tecnico,
+                observacion: "DISPOSITIVO ACTUALIZADO"
+            }
+            observacion = JSON.stringify(observacion);
+            new InterfaceLogAdminUser(parameters.id_tecnico, observacion, 4).insertLogEventoTecnico();
+        }
+
     } else {
-        res.status(validationResult.responseCode).send(validationResult)
+        res.status(validationResult.responseCode).send({
+            ...validationResult
+        });
     }
 
 }
@@ -116,7 +134,7 @@ async function searchList(req, res, databaseManager) {
             posicion: parameters.posicion,
             data: data
         }
-        
+
         res.status(dbResponse.responseCode).send(dbResponse);
     } else {
         res.status(validationResult.responseCode).send(validationResult);

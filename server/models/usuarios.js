@@ -35,7 +35,8 @@ const getList = Joi.object().keys({
 const update = Joi.object().keys({
     attribute: Joi.string().required().allow("cedula", "nombre", "correo", "cargo", "id_grupo", "id_oficina", "extension", "id_rol", "id_estado"),
     value: Joi.any().required().allow(null),
-    id_usuario: Joi.number().required()
+    id_usuario: Joi.number().required(),
+    id_tecnico: Joi.number().required()
 });
 
 
