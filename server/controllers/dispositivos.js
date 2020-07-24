@@ -31,19 +31,17 @@ async function getByUsers(reqClient, resClient, databaseManager) {
         });
     }
 }
-// luis evento LOG 
+// luis
+// actualiza dispositivos evento LOG 
 async function updateDispositivo(req, res, databaseManager) {
     let parameters = {
         id: req.body.id,
         id_usuario: req.body.id_usuario,
         id_tecnico: req.body.id_tecnico
     }
-
     let validationResult = validateModel(parameters, schema.updateDispositivo);
     if (validationResult.responseStatus == true) {
-
         let sql = SqlString.format('UPDATE dispositivos SET id_usuario = ? WHERE id = ?', [parameters.id_usuario, parameters.id]);
-
         let dbResponse = await databaseManager.executeQueries(sql);
         res.status(dbResponse.responseCode).send({
             ...dbResponse
@@ -108,7 +106,8 @@ async function getList(req, res, databaseManager) {
         res.status(validationResult.responseCode).send(validationResult);
     }
 }
-
+//luis
+// busca por usuario,placa u origen del dispositivo , y los organiza en una lista 
 async function searchList(req, res, databaseManager) {
 
     let parameters = {
@@ -140,6 +139,65 @@ async function searchList(req, res, databaseManager) {
         res.status(validationResult.responseCode).send(validationResult);
     }
 }
+// luis
+// busca por referencia , modelo,marca, o por id_referencia
+async function searchRef(req, res, databaseManager) {
+
+    let parameters = {
+        parameter: String(req.query.parameter),
+        id_referencia: req.query.id_referencia
+    }
+    let validationResult = validateModel(parameters, schema.searchRef);
+    if (parameters.parameter) {
+        let search = SqlString.escape('%' + parameters.parameter + '%');
+        let sql = SqlString.format(`SELECT * FROM vista_referencia_modelo_marca WHERE referencia LIKE ${search} OR modelo LIKE ${search} OR marca LIKE ${search} OR id_referencia = ? `, [parameters.id_referencia]);
+        dbResponse = await databaseManager.executeQueries(sql);
+        let data = dbResponse.resultData;
+        dbResponse.resultData = {
+            data: data
+        }
+        res.status(dbResponse.responseCode).send(dbResponse);
+    } else {
+        res.status(validationResult.responseCode).send(validationResult);
+    }
+
+}
+//luis
+// busca origen del dispositivo.
+async function getOrigen(req, res, databaseManager) {
+
+    let sql = SqlString.format('SELECT *  FROM origen_dispositivo');
+    let dbResponse = await databaseManager.executeQueries(sql);
+    res.status(dbResponse.responseCode).send(dbResponse);
+
+}
+
+
+async function InsertDisp(req, res, databaseManager) {
+    let InsertDis = req.body;
+    let validationResult = validateModel(InsertDis, schema.InsertDisp);
+    if (validationResult.responseStatus) {
+        let sql = SqlString.format('INSERT INTO dispositivos SET ?', InsertDis);
+        dbResponse = await databaseManager.executeQueries(sql);
+        //res.status(dbResponse.responseCode).send({...dbResponse });
+        validationResult = validateModel(InsertDis, schema.InsertInfo);
+
+        console.log(validationResult);
+    }
+    if (validationResult.resultData.id_tipo_dispositivo = 1, 2, 3) {
+        let dataAdd = req.body;
+        sql = SqlString.format('INSERT INTO informacion_dispositivos SET ?', dataAdd);
+        console.log(sql);
+        let dbResponse = await databaseManager.executeQueries(sql);
+
+
+        res.status(dbResponse.responseCode).send({...dbResponse });
+
+
+    } else {
+        resClient.send(validationResult);
+    }
+}
 
 
 
@@ -148,6 +206,10 @@ module.exports = {
     updateDispositivo,
     getTipo,
     getList,
-    searchList
+    searchList,
+    searchRef,
+    getOrigen,
+    InsertDisp
+
 
 }
